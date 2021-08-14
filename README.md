@@ -1,2 +1,2 @@
 # Face-detection
-face-detection simple website with flask
+simple face detection using opencv,mediapipe and flask.

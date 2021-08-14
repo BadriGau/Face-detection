@@ -34,11 +34,9 @@ def gen_frames():
                 for id,detection in enumerate(results.detections):
                     bboxC = detection.location_data.relative_bounding_box
                     ih,iw,ic = frame.shape
-                    bbox = int(bboxC.xmin * iw),int(bboxC.ymin * ih),int(bboxC.width * iw),int(bboxC.height * ih)
-                    cv.rectangle(frame,bbox,(255,0,255),2)
-                    cv.putText(frame,f'FA: {int(detection.score[0]*100)}%',(bbox[0],bbox[1] - 20),cv.FONT_HERSHEY_PLAIN,2,(0,255,0),2)
-        
-   
+                    bbox = int(bboxC.xmin * iw),int(bboxC.ymin * ih),int(bboxC.width * iw),int(bboxC.height * ih)        
+                    frame = createFrame(frame,bbox)
+                    cv.putText(frame,f'FA: {int(detection.score[0]*100)}%',(bbox[0],bbox[1] - 20),cv.FONT_HERSHEY_PLAIN,2,(255,0,255),2)
             cTime = time.time()
             fps = 1/(cTime-pTime)
             pTime = cTime
@@ -48,7 +46,24 @@ def gen_frames():
             frame = buffer.tobytes()
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-
+    
+def createFrame(frame,bbox,l=20,s=5):
+    x,y,w,h =bbox
+    x1,y1 = x+w,y+h
+    cv.rectangle(frame,bbox,(255,0,255),2)
+    cv.line(frame,(x,y),(x+l,y),(255,0,255),s)
+    cv.line(frame,(x,y),(x,y+l),(255,0,255),s)
+    # top right
+    cv.line(frame,(x1,y),(x1-l,y),(255,0,255),s)
+    cv.line(frame,(x1,y),(x1,y+l),(255,0,255),s)
+    # bottom left
+    cv.line(frame,(x,y1),(x+l,y1),(255,0,255),s)
+    cv.line(frame,(x,y1),(x,y1-l),(255,0,255),s)
+    # bottom right
+    cv.line(frame,(x1,y1),(x1-l,y1),(255,0,255),s)
+    cv.line(frame,(x1,y1),(x1,y1-l),(255,0,255),s)
+        
+    return frame
 
 if __name__ == "__main__":
     app.run(debug=True)
