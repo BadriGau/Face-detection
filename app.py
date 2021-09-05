@@ -37,11 +37,20 @@ def gen_frames():
                     bbox = int(bboxC.xmin * iw),int(bboxC.ymin * ih),int(bboxC.width * iw),int(bboxC.height * ih)        
                     frame = createFrame(frame,bbox)
                     cv.putText(frame,f'FA: {int(detection.score[0]*100)}%',(bbox[0],bbox[1] - 20),cv.FONT_HERSHEY_PLAIN,2,(255,0,255),2)
+                
+                localtime = time.ctime()
+                
+                # cv.imwrite(filename=localtime, img=frame)
+                
+                    
             cTime = time.time()
             fps = 1/(cTime-pTime)
             pTime = cTime
+            # lt = localtime.replace(" ", "")
 
             cv.putText(frame,f'FPS: {int(fps)}',(10,50),cv.FONT_HERSHEY_PLAIN,2,(0,255,0),2)
+            cv.putText(frame,f'{localtime}',(300,470),cv.FONT_HERSHEY_COMPLEX_SMALL,1,(255,0,0),1)
+            
             ret, buffer = cv.imencode('.jpg', frame)
             frame = buffer.tobytes()
             yield (b'--frame\r\n'
