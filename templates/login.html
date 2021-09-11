@@ -1,0 +1,34 @@
+{% extends "index.html" %}
+   
+{% block content %}
+
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <h3></h3>
+        <form name="login" action="" method="POST" novalidate>
+            <fieldset class="form-group">
+                <legend>{{ title }}</legend>
+            {{ form.hidden_tag() }}
+
+            <p>
+                {{ form.user.label}}<br>
+                {{ form.user(size=35) }}
+                {% for error in form.user.errors %}
+                    <span style="color: red;">{{ error }}</span>
+                {% endfor %}
+            </p>
+            <p>
+                {{ form.password.label}}<br>
+                {{ form.password(size=15) }}
+                {% for error in form.password.errors %}
+                <span style="color: red;">{{ error }}</span>
+            {% endfor %}
+            </p>
+            <p>
+                {{ form.submit() }}
+            </p>
+            </fieldset>
+        </form>
+    </div>
+</div>
+{% endblock %}
