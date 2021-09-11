@@ -1,16 +1,34 @@
 {% extends "index.html" %}
 {% block title %}Add image{% endblock %}
 {% block content %}
-<form>
-    <div class="mb-3">
-      <label for="person" class="form-label">Name</label>
-      <input type="text" class="form-control">
-    </div>
-    <div class="mb-3">
-      <label for="image" class="form-label">Image</label>
-      <input type="file" class="form-control" multiple>
-    </div>
+<div class="row">
+  <div class="col-md-6 offset-md-3">
+    <form name="addPerson" action="" method="POST" enctype="multipart/form-data">
+        <fieldset class="form-group">
+          <legend>{{ title }}</legend>
+      {{ form.hidden_tag() }}
+
+        <p>
+            {{ form.name.label }}<br>
+            {{ form.name(size=35) }}
+            {% for error in form.name.errors %}
+                <span style="color: red;">{{ error }}</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.image.label }}<br>
+            {{ form.image(size=35) }}
+            {% for error in form.image.errors %}
+            <span style="color: red;">{{ error }}</span>
+        {% endfor %}
+        </p>
+        <p>
+            {{ form.submit() }}
+        </p>
+      </fieldset>
+    </form>
+  </div>
+  </div>
+  
     
-    <button type="submit" class="btn btn-primary">Add Person</button>
-  </form>
 {% endblock %}

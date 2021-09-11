@@ -1,16 +1,22 @@
+from itertools import chain
 from flask import Flask, render_template, Response,flash,session,redirect,url_for
 import cv2 as cv
 import mediapipe as mp
 import time
 import os
-from forms import LoginForm
+from forms import LoginForm,AddPersonForm
 from config import Config
+from werkzeug import secure_filename
 app=Flask(__name__)
 app.config.from_object(Config)
 
-@app.route('/stream')
-@app.route('/')
+
+@app.route('/index')
 def index():
+    if not session.get('username'):
+        return redirect(url_for('login'))
+    if not os.path.exists('Breach'):
+        os.mkdir("Breach")
     return render_template('stream.html')
 
 @app.route('/video_feed')
@@ -85,40 +91,59 @@ def createFrame(frame,bbox,l=20,s=5):
     return frame
 
 
-@app.route('/breach')
-def breach():
-    my_path = 'Breach'
-    if not os.path.exists(my_path):
-        os.mkdir("Breach")
-        msg="successfully created"
-    else:
-        msg="already satisfied"
-    return render_template('index.html',msg=msg)
 
-@app.route('/imagedir')
+# for image
+upload_folder = "Images/"
+if not os.path.exists(upload_folder):
+    os.mkdir(upload_folder)
+            
+app.config['UPLOAD_FOLDER'] = upload_folder
+allowed_extensions = ['jpg','png','jpeg']
+
+def check_extension(filename):
+    return filename.split('.')[-1] in allowed_extensions
+
+@app.route('/imagedir',methods=['GET','POST'])
 def imagedir():
-    return render_template('imageform.html')
-
-
-@app.route("/login",methods=['GET','POST'])
-def login():
-    # if session.get('username'):
-    #     return redirect(url_for('index'))
-     form = LoginForm()
-     return render_template("login.html",form=form,title="Login")
-    # if form.validate_on_submit():
-    #     email = form.email.data
-    #     password = form.password.data
+    if not session.get('username'):
+        return redirect(url_for('login'))
+    form = AddPersonForm()
+    if form.validate_on_submit():
+        name = form.name.data
+        files = form.image.data
+        # if not os.path.exists('Images'):
+        #     os.mkdir('Images')
+        #     os.chdir('Images')
+        #     os.mkdir(name)
+        for file in files:
+            file_filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'],file_filename))
+        # if not os.path.exists('Images'):
+        #     os.mkdir('Images')
+        #     os.chdir('Images')
+        #     os.mkdir(name)
+                #cv.imwrite(filename=f'{count}.jpg', img=file)
+                
         
-    #     user = User.objects(email=email).first()
-    #     if user and user.get_password(password):
-    #         flash(f"{user.first_name},You are successfully logged in!!","success")
-    #         session['user_id'] = user.user_id
-    #         session['username'] = user.first_name
-    #         return redirect("/index")
-    #     else:
-    #         flash("Sorry, Something went wrong!!","danger")
-    
+    return render_template('imageform.html',form=form,title="Add Person")
+
+
+@app.route("/",methods=['GET','POST'])
+def login():
+    if session.get('username'):
+        return redirect(url_for('index'))
+    form = LoginForm()
+    if form.validate_on_submit():
+        username = form.user.data
+        password = form.password.data
+        
+        if  username == 'Badri' and password == 'Badri123':
+            flash("You are successfully logged in!!","success")
+            session['username'] = username
+            return redirect("/index")
+        else:
+            flash("Sorry, Something went wrong!!","danger")
+    return render_template("login.html",form=form,title="Login")
 
 @app.route("/logout")
 def logout():
